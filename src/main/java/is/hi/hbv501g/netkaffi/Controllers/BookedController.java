@@ -8,15 +8,13 @@ import is.hi.hbv501g.netkaffi.Services.ProductService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
 import java.util.Calendar;
 import java.util.List;
 
-@Controller
+@RestController
 public class BookedController {
 
     BookingService bookedService;
@@ -28,84 +26,34 @@ public class BookedController {
     }
 
     /**
-     * Fetches session attributes of user & date for use in booked.html,
-     * fetches past and current bookings and saves relevant bookings
-     * depending on whether user is an admin or not for use with booked.html
      *
-     * @param session
-     * @param model
-     * @return direction to booked.html with relevant session & booked information
+     * @param user the user we want to find the bookings of
+     * @return all bookings made by user/ all bookings if user is admin
      */
-    @RequestMapping(value="/booked", method= RequestMethod.GET)
-    public String bookedGet(HttpSession session, Model model){
-        User user = (User) session.getAttribute("LoggedInUser");
-        if( Errors.checkUser(user) == 0 ){
-            return "redirect:/";
-        }
-        Date date = (Date) session.getAttribute("dateSearch");
+    @GetMapping(value="/booked")
+    public List<Booking> bookedGet(@RequestBody User user){
         List<Booking> booked;
         if(user.getIsAdmin()){
             booked = bookedService.findAll();
         } else {
             booked = bookedService.findAllByUser(user);
         }
-        model.addAttribute("bookings", booked);
-        model.addAttribute("activeUser", user);
-        model.addAttribute("dateSearch", date);
-        session.setAttribute("dateSearch", null);
-        return "booked";
-    }
-
-    /**
-     * Fetching bookings that have the datetime which equals the startdate
-     *
-     * @param startdate the datetime which the bookings belong to
-     * @param model
-     * @param session
-     * @return redirect to booked with only relevant bookings
-     */
-    @RequestMapping(value="/booked/search", method= RequestMethod.POST)
-    public String bookedSearch(@RequestParam Date startdate, Model model, HttpSession session){
-        User user = (User) session.getAttribute("LoggedInUser");
-        if( Errors.checkUser(user) == 0 ){
-            return "redirect:/";
-        }
-        session.setAttribute("dateSearch", startdate);
-        return "redirect:/booked";
+        return booked;
     }
 
     /**
      * Deletion of a specific booking
      *
-     * @param productName name of the product belonging to the booking
-     * @param starttime unix-timestamp of booking
-     * @param model
-     * @return redirect to booked
+     * @param booking the booking to be deleted
+     * @return the booking if successful else null
      */
-    @RequestMapping(value="/booked", method= RequestMethod.POST)
-    public String bookedDelete(@RequestParam String productName,@RequestParam long starttime, Model model, HttpSession session){
-        try {
-            User user = (User) session.getAttribute("LoggedInUser");
-            if( Errors.checkUser(user) == 0 ){
-                return "redirect:/";
-            }
-            Product product = productService.findByName(productName);
-            Booking booking = bookedService.findByProductAndStarttime(product, starttime);
-            if(!user.getIsAdmin()){
-                if(!booking.getUser().getUsername().equals(user.getUsername()) || !booking.getUser().getPassword().equals(user.getPassword()) ){
-                    return "redirect:/booked";
-                }
-                Calendar calendar = Calendar.getInstance();
-                long today = calendar.getTimeInMillis();
-                if (starttime < today) {
-                    return "redirect:/booked";
-                }
-            }
-
+    @PostMapping(value="/booked",consumes = "application/json", produces = "application/json")
+    public Booking bookedDelete(@RequestBody Booking booking){
+        try{
             bookedService.delete(booking);
-            return "redirect:/booked";
-        } catch(Exception e) {
-            return "redirect:/booked";
+            return booking;
+        } catch(Exception e){
+            return null;
         }
     }
 }

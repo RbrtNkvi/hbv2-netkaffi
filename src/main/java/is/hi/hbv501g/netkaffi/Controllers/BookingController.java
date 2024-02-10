@@ -11,16 +11,13 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-@Controller
+@RestController
 public class BookingController {
     BookingService bookingService;
     ProductService productService;
@@ -35,68 +32,31 @@ public class BookingController {
      * fetches session attributes of user
      *
      * @param product which is being booked
-     * @param model
-     * @param session
      * @return direction to booking.html with information for product
      */
-    @RequestMapping(value="/book/{product}", method = RequestMethod.GET)
-    public String productGet(@PathVariable String product, Model model, HttpSession session){
-        Product p = productService.findByName(product);
-        User user = (User) session.getAttribute("LoggedInUser");
-        if( Errors.checkUser(user) == 0 ){
-            return "redirect:/";
-        }
-        model.addAttribute("product", p);
-        model.addAttribute("activeUser", user);
-        return "booking";
+    @GetMapping("/book/{product}")
+    public Product productGet(@PathVariable String product){
+        return productService.findByName(product);
     }
 
     /**
      * Creates a new booking and inserts it into the PSQL database
      *
-     * @param product which is being booked
-     * @param starthour the hour that is being booked
-     * @param startdate the date that is being booked
-     * @param model
-     * @param session
-     * @return redirect to booked.html
+     * @param booking Booking object from json post request
+     * @return json of the booking if successful
      */
-    @RequestMapping(value="/book/{product}", method = RequestMethod.POST)
-    public String bookingPost(@PathVariable String product, @RequestParam String starthour, @RequestParam Date startdate, Model model, HttpSession session){
-        User user = (User) session.getAttribute("LoggedInUser");
-        if( Errors.checkUser(user) == 0 ){
-            return "redirect:/";
+    @PostMapping(value = "/book", consumes = "application/json", produces = "application/json")
+    public Booking bookingPost(@RequestBody Booking booking){
+        Calendar calendar = Calendar.getInstance();
+        long today = calendar.getTimeInMillis();
+        if( booking.getStarttime() < today || booking.getProduct().isDeleted() ){
+            return null;
         }
-        try {
-            Product p = productService.findByName(product);
-            if( startdate == null ){
-                return "redirect:/book/" + product;
-            }
-            Calendar calendar = Calendar.getInstance();
-            long today = calendar.getTimeInMillis();
-
-            int st = Integer.parseInt(starthour);
-            long timestamp = startdate.getTime();
-            timestamp += 3600000*st;
-
-            if( timestamp < today ){
-                return "redirect:/book/" + product;
-            }
-
-            if (bookingService.findByProductAndStarttime(p,timestamp) != null) {
-                return "redirect:/book/" + product;
-            }
-            Booking b = new Booking(user,p,timestamp);
-            Booking exists = bookingService.save(b);
-            if(exists != null){
-                return "redirect:/booked";
-            }
-            return "redirect:/book/" + product;
-        } catch(Exception e){
-            if( user.getIsAdmin() ){
-                return "redirect:/products";
-            }
-            return "redirect:/main";
+        if (bookingService.findByProductAndStarttime(booking.getProduct(),booking.getStarttime()) != null) {
+            return null;
         }
+        return bookingService.save(booking);
+
+
     }
 }

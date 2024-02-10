@@ -2,8 +2,7 @@ package is.hi.hbv501g.netkaffi.Persistence.Entities;
 
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Table(name="users")
@@ -17,6 +16,12 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Booking> bookings = new ArrayList<>();
 
+    @ManyToMany
+    @JoinTable(
+            name = "fav_product",
+            joinColumns = @JoinColumn(name = "user_name"),
+            inverseJoinColumns = @JoinColumn(name = "product_name"))
+    private Set<Product> favourites = new HashSet<>();
 
     public User(String name, String password, Boolean isAdmin){
         this.username = name;
@@ -63,5 +68,18 @@ public class User {
 
     public void setBookings(List<Booking> bookings) {
         this.bookings = bookings;
+    }
+
+    public void addFavourite(Product product){
+        this.favourites.add(product);
+        product.getUsers().add(this);
+    }
+
+    public void removeFavourite(String productName){
+        Product p = this.favourites.stream().filter(t -> Objects.equals(t.getName(), productName)).findFirst().orElse(null);
+        if (p != null) {
+            this.favourites.remove(p);
+            p.getUsers().remove(this);
+        }
     }
 }

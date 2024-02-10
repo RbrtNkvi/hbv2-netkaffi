@@ -9,93 +9,50 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 public class LoginController {
     UserService userService;
 
     @Autowired
-    public LoginController(UserService userService){
+    public LoginController(UserService userService) {
         this.userService = userService;
-    }
-
-    @RequestMapping(value = "/signup", method = RequestMethod.GET)
-    public String signupGet(User user) {
-        return "signup";
     }
 
     /**
      * Creates new user
      *
      * @param user new user information
-     * @param result
-     * @param model
-     * @return redirect to login.html
+     * @return user if successful
      */
-    @RequestMapping(value = "/signup", method = RequestMethod.POST)
-    public String signupPost(User user, BindingResult result, Model model) {
-        if(result.hasErrors() || user.getUsername() == "" || user.getPassword() == "") {
-            return "redirect:/signup";
+    @PostMapping(value = "/signup", consumes = "application/json", produces = "application/json")
+    public User signupPost(@RequestBody User user) {
+        if (checkSignupForBlanks(user.getUsername(), user.getPassword())) {
+            return null;
         }
         User exists = userService.findByUsername((user.getUsername()));
         if (exists == null) {
-            userService.save(user);
+            return userService.save(user);
         }
-        return "redirect:/";
+        return null;
     }
 
-    @RequestMapping(value = "/users/{name}", method = RequestMethod.GET)
-    public String getUser(@PathVariable String name, Model model) {
-        User user = userService.findByUsername(name);
-        model.addAttribute("users",user);
-        return "user";
+    public boolean checkSignupForBlanks(String username, String password) {
+        return !username.isBlank() && !password.isBlank();
+    }
+
+    @GetMapping(value="/users/{name}")
+    public User getUser(@PathVariable String name) {
+        return userService.findByUsername(name);
     }
 
     /**
      * Verifies user exists and logs them in
      *
      * @param user user information
-     * @param result
-     * @param model
-     * @param session
      * @return redirect to main.html or product.html depending on if user is an admin
      */
-    @RequestMapping(value = "/", method = RequestMethod.POST)
-    public String loginPost(User user, BindingResult result, Model model, HttpSession session){
-        if(result.hasErrors()){
-            return "redirect:/";
-        }
-        User exists = userService.login(user);
-        if(exists != null){
-            session.setAttribute("LoggedInUser", exists);
-            model.addAttribute("LoggedInUser", exists);
-            if (exists.getIsAdmin() == true) {
-                return "redirect:/products";
-            }
-            return "redirect:/main";
-        }
-        return "redirect:/";
-    }
-
-    @RequestMapping(value = "/", method = RequestMethod.GET)
-    public String loginGet(User user, HttpSession session){
-        session.setAttribute("LoggedInUser", null);
-        return "login";
-    }
-
-    /**
-     * Fetches information about which user is logged in
-     *
-     * @param session
-     * @param model
-     * @return redirect to loggedInUser.html
-     */
-    @RequestMapping(value = "/loggedin", method = RequestMethod.GET)
-    public String loggedinGet(HttpSession session, Model model) {
-        User sessionUser = (User) session.getAttribute("LoggedInUser");
-        if(sessionUser != null) {
-            model.addAttribute("LoggedInUser", sessionUser);
-            return "loggedInUser";
-        }
-        return "redirect:/";
+    @PostMapping(value="/login",consumes = "application/json", produces = "application/json")
+    public User loginPost(@RequestBody User user) {
+        return userService.login(user);
     }
 }

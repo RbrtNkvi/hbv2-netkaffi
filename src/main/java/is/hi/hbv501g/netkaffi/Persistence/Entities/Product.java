@@ -3,7 +3,9 @@ package is.hi.hbv501g.netkaffi.Persistence.Entities;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name="products")
@@ -17,6 +19,9 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Booking> bookings = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "favourites")
+    private Set<User> users = new HashSet<>();
 
     public Product(){
 
@@ -73,5 +78,13 @@ public class Product {
 
     public void setBookings(List<Booking> bookings) {
         this.bookings = bookings;
+    }
+
+    public Set<User> getUsers(){
+        return users;
+    }
+
+    public void setUsers(Set<User> users){
+        this.users = users;
     }
 }

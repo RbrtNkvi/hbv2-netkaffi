@@ -8,12 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.HttpMediaTypeException;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@Controller
+@RestController
 public class HomeController {
 
     ProductService productService;
@@ -26,19 +28,11 @@ public class HomeController {
     /**
      * Fetching the products for use in main.html
      *
-     * @param product
-     * @param model
      * @return direction to main.html with products information
      */
-    @RequestMapping(value="/main", method = RequestMethod.GET)
-    public String productsGet(Product product, Model model, HttpSession session) {
-        User user = (User) session.getAttribute("LoggedInUser");
-        if( Errors.checkUser(user) == 0 ){
-            return "redirect:/";
-        }
-        List<Product> allProducts = productService.findAll();
-        model.addAttribute("products", allProducts);
-        return "main";
+    @GetMapping(value="/main")
+    public List<Product> productsGet() {
+        return productService.findAll();
     }
 
 }
