@@ -26,7 +26,7 @@ public class LoginController {
      */
     @PostMapping(value = "/signup", consumes = "application/json", produces = "application/json")
     public User signupPost(@RequestBody User user) {
-        if (checkSignupForBlanks(user.getUsername(), user.getPassword())) {
+        if (!checkSignupForBlanks(user.getUsername(), user.getPassword())) {
             return null;
         }
         User exists = userService.findByUsername((user.getUsername()));
