@@ -47,7 +47,7 @@ public class BookedController {
      * @param booking the booking to be deleted
      * @return the booking if successful else null
      */
-    @PostMapping(value="/booked",consumes = "application/json", produces = "application/json")
+    @PostMapping(value="/booked/delete",consumes = "application/json", produces = "application/json")
     public Booking bookedDelete(@RequestBody Booking booking){
         try{
             bookedService.delete(booking);
