@@ -30,7 +30,7 @@ public class BookedController {
      * @param user the user we want to find the bookings of
      * @return all bookings made by user/ all bookings if user is admin
      */
-    @GetMapping(value="/booked")
+    @PostMapping(value="/booked", consumes = "application/json", produces = "application/json")
     public List<Booking> bookedGet(@RequestBody User user){
         List<Booking> booked;
         if(user.getIsAdmin()){
