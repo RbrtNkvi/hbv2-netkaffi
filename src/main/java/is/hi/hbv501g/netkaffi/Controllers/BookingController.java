@@ -49,12 +49,14 @@ public class BookingController {
     public Booking bookingPost(@RequestBody Booking booking){
         Calendar calendar = Calendar.getInstance();
         long today = calendar.getTimeInMillis();
+        /*
         if( booking.getStarttime() < today || booking.getProduct().isDeleted() ){
             return null;
         }
         if (bookingService.findByProductAndStarttime(booking.getProduct(),booking.getStarttime()) != null) {
             return null;
         }
+        */
         return bookingService.save(booking);
 
 
