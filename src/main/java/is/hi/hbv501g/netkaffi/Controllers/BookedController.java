@@ -19,10 +19,12 @@ public class BookedController {
 
     BookingService bookedService;
     ProductService productService;
+    UserService userService;
 
-    public BookedController(BookingService bookedService, ProductService productService){
+    public BookedController(BookingService bookedService, ProductService productService, UserService userService){
         this.bookedService = bookedService;
         this.productService = productService;
+        this.userService = userService;
     }
 
     /**
@@ -30,8 +32,9 @@ public class BookedController {
      * @param user the user we want to find the bookings of
      * @return all bookings made by user/ all bookings if user is admin
      */
-    @PostMapping(value="/booked", consumes = "application/json", produces = "application/json")
-    public List<Booking> bookedGet(@RequestBody User user){
+    @GetMapping("/booked/{username}")
+    public List<Booking> bookedGet(@PathVariable String username){
+        User user = userService.findByUsername(username);
         List<Booking> booked;
         if(user.getIsAdmin()){
             booked = bookedService.findAll();
