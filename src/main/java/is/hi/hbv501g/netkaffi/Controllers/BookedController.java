@@ -5,6 +5,7 @@ import is.hi.hbv501g.netkaffi.Persistence.Entities.Product;
 import is.hi.hbv501g.netkaffi.Persistence.Entities.User;
 import is.hi.hbv501g.netkaffi.Services.BookingService;
 import is.hi.hbv501g.netkaffi.Services.ProductService;
+import is.hi.hbv501g.netkaffi.Services.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
