@@ -21,10 +21,12 @@ import java.util.Calendar;
 public class BookingController {
     BookingService bookingService;
     ProductService productService;
+    UserService userService;
 
-    public BookingController(BookingService bookingService, ProductService productService){
+    public BookingController(BookingService bookingService, ProductService productService, UserService userService){
         this.bookingService = bookingService;
         this.productService = productService;
+        this.userService = userService;
     }
 
     /**
@@ -47,9 +49,13 @@ public class BookingController {
      */
     @PostMapping(value = "/book", consumes = "application/json", produces = "application/json")
     public Booking bookingPost(@RequestBody Booking booking){
+        Product prod = productService.findByName(booking.getProduct().getName());
+        User user = userService.findByUsername(booking.getUser().getUsername());
+        Booking realBooking = new Booking(user,prod,booking.getStarttime());
+        /*
         Calendar calendar = Calendar.getInstance();
         long today = calendar.getTimeInMillis();
-        /*
+        
         if( booking.getStarttime() < today || booking.getProduct().isDeleted() ){
             return null;
         }
@@ -57,7 +63,7 @@ public class BookingController {
             return null;
         }
         */
-        return bookingService.save(booking);
+        return bookingService.save(realBooking);
 
 
     }
