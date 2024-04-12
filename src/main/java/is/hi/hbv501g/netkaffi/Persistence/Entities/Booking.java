@@ -51,7 +51,9 @@ public class Booking {
         this.starttime = starttime;
     }
 
+    /*
     public long getEndtime(){
         return this.starttime+1;
     }
+    */
 }
