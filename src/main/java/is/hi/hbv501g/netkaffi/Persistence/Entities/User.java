@@ -62,9 +62,11 @@ public class User {
         this.isadmin = isAdmin;
     }
 
+    /*
     public List<Booking> getBookings() {
         return bookings;
     }
+    */
 
     public void setBookings(List<Booking> bookings) {
         this.bookings = bookings;
