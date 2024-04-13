@@ -35,27 +35,21 @@ public class BookedController {
      * @param user the user we want to find the bookings of
      * @return all bookings made by user/ all bookings if user is admin
      */
-    /*
-    @GetMapping("/booked/{username}")
-    public List<Booking> bookedGet(@PathVariable("username") String username){
-        User user = userService.findByUsername(username);
-        System.out.println(user);
-        if(user.getIsAdmin()){
-            return bookedService.findAll();
-        }
-        return bookedService.findAllByUser(user);
-    }
-    */
 
-    @GetMapping("/booked/admin")
-    public List<BookingDTO> bookedGetAll() {
-        List<Booking> bookings = bookedService.findAll();
+    @GetMapping("/booked/{username}")
+    public List<BookingDTO> bookedGet(@PathVariable("username") String username) {
+        User user = userService.findByUsername(username);
+        List<Booking> bookings;
+        if (user.getIsAdmin()) {
+            bookings = bookedService.findAll();
+        } else {
+            bookings = bookedService.findAllByUser(user);
+        }
         List<BookingDTO> bookingDTOs = bookings.stream()
                 .map(BookingDTO::new) // Convert Booking entities to DTOs
                 .collect(Collectors.toList());
         return bookingDTOs;
     }
-
 
     /**
      * Deletion of a specific booking
