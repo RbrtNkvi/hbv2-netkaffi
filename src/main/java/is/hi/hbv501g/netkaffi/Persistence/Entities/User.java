@@ -21,7 +21,7 @@ public class User {
             name = "fav_product",
             joinColumns = @JoinColumn(name = "user_name"),
             inverseJoinColumns = @JoinColumn(name = "product_name"))
-    private Set<Product> favourites = new HashSet<>();
+    private Set<Product> favourites;
 
     public User(String name, String password, Boolean isAdmin){
         this.username = name;
@@ -72,7 +72,7 @@ public class User {
         this.bookings = bookings;
     }
 
-    public void addFavourite(Product product){
+    public void setFavourites(Product product){
         this.favourites.add(product);
         product.getUsers().add(this);
     }
