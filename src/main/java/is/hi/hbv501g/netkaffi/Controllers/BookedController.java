@@ -30,12 +30,6 @@ public class BookedController {
         this.userService = userService;
     }
 
-    /**
-     *
-     * @param user the user we want to find the bookings of
-     * @return all bookings made by user/ all bookings if user is admin
-     */
-
     @GetMapping("/booked/{username}")
     public List<BookingDTO> bookedGet(@PathVariable("username") String username) {
         User user = userService.findByUsername(username);
@@ -58,9 +52,12 @@ public class BookedController {
      * @return the booking if successful else null
      */
     @PostMapping(value="/booked/delete",consumes = "application/json", produces = "application/json")
-    public Booking bookedDelete(@RequestBody Booking booking){
+    public BookingDTO bookedDelete(@RequestBody BookingDTO booking){
         try{
-            bookedService.delete(booking);
+            User user = userService.findByUsername(booking.getUserName());
+            Product product = productService.findByName(booking.getProductName());
+            Booking toDelete = new Booking(user,product,booking.getStartTime());
+            bookedService.delete(toDelete);
             return booking;
         } catch(Exception e){
             return null;
