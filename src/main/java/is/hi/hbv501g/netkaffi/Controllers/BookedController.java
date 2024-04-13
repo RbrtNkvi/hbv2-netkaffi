@@ -43,6 +43,11 @@ public class BookedController {
         return bookedService.findAllByUser(user);
     }
 
+    @GetMapping("/booked/admin)
+    public List<Booking> bookedGetAll(){
+        return bookedService.findAll();
+    }
+
     /**
      * Deletion of a specific booking
      *
