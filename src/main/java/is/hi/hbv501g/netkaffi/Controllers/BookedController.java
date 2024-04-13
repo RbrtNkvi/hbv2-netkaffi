@@ -33,6 +33,7 @@ public class BookedController {
      * @param user the user we want to find the bookings of
      * @return all bookings made by user/ all bookings if user is admin
      */
+    /*
     @GetMapping("/booked/{username}")
     public List<Booking> bookedGet(@PathVariable("username") String username){
         User user = userService.findByUsername(username);
@@ -42,6 +43,7 @@ public class BookedController {
         }
         return bookedService.findAllByUser(user);
     }
+    */
 
     @GetMapping("/booked/admin")
     public List<Booking> bookedGetAll(){
