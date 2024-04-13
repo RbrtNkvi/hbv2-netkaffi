@@ -27,7 +27,8 @@ public class FavouriteController {
     }
 
     @PostMapping(value="/favourite",consumes="application/json",produces="application/json")
-    public void deleteFavourite(@RequestBody Favourite favourite){
+    public Favourite deleteFavourite(@RequestBody Favourite favourite){
         favouriteService.delete(favourite);
+        return favourite;
     }
 }
