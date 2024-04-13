@@ -1,6 +1,7 @@
 package is.hi.hbv501g.netkaffi.Controllers;
 
 import is.hi.hbv501g.netkaffi.Persistence.Entities.Booking;
+import is.hi.hbv501g.netkaffi.Persistence.Entities.BookingDTO;
 import is.hi.hbv501g.netkaffi.Persistence.Entities.Product;
 import is.hi.hbv501g.netkaffi.Persistence.Entities.User;
 import is.hi.hbv501g.netkaffi.Services.BookingService;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.sql.Date;
 import java.util.Calendar;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class BookedController {
@@ -46,9 +48,14 @@ public class BookedController {
     */
 
     @GetMapping("/booked/admin")
-    public List<Booking> bookedGetAll(){
-        return bookedService.findAll();
+    public List<BookingDTO> bookedGetAll() {
+        List<Booking> bookings = bookedService.findAll();
+        List<BookingDTO> bookingDTOs = bookings.stream()
+                .map(BookingDTO::new) // Convert Booking entities to DTOs
+                .collect(Collectors.toList());
+        return bookingDTOs;
     }
+
 
     /**
      * Deletion of a specific booking
