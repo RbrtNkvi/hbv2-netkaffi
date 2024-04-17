@@ -52,17 +52,11 @@ public class BookingController {
         Product prod = productService.findByName(booking.getProduct().getName());
         User user = userService.findByUsername(booking.getUser().getUsername());
         Booking realBooking = new Booking(user,prod,booking.getStarttime());
-        /*
-        Calendar calendar = Calendar.getInstance();
-        long today = calendar.getTimeInMillis();
-        
-        if( booking.getStarttime() < today || booking.getProduct().isDeleted() ){
+
+        if (bookingService.findByProductAndStarttime(prod,booking.getStarttime()) != null) {
             return null;
         }
-        if (bookingService.findByProductAndStarttime(booking.getProduct(),booking.getStarttime()) != null) {
-            return null;
-        }
-        */
+
         return bookingService.save(realBooking);
 
 
